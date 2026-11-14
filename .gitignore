@@ -27,3 +27,4 @@ __pycache__/
 
 # local Cloudflare secrets
 .dev.vars
+.wrangler/

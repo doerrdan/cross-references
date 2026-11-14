@@ -1,14 +1,14 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { onRequest } from "../functions/_middleware.ts";
+import worker, { type Env } from "../worker/index.ts";
 
-const env = { BASIC_AUTH_USER: "bibel", BASIC_AUTH_PASSWORD: "Gnade für alle" };
-const ok = () => Promise.resolve(new Response("site"));
-const call = (auth?: string, e: object = env) =>
-  onRequest({ request: new Request("https://x/", { headers: auth ? { Authorization: auth } : {} }), env: e, next: ok });
+const ASSETS = { fetch: () => Promise.resolve(new Response("site")) };
+const env: Env = { ASSETS, BASIC_AUTH_USER: "bibel", BASIC_AUTH_PASSWORD: "Gnade für alle" };
+const call = (auth?: string, e: Env = env) =>
+  worker.fetch(new Request("https://x/", { headers: auth ? { Authorization: auth } : {} }), e);
 const basic = (s: string) => "Basic " + Buffer.from(s, "utf8").toString("base64");
 
-test("correct credentials pass through", async () => {
+test("correct credentials reach the static files", async () => {
   assert.equal(await (await call(basic("bibel:Gnade für alle"))).text(), "site");
 });
 test("wrong or missing credentials get 401 with a challenge", async () => {
@@ -19,5 +19,5 @@ test("wrong or missing credentials get 401 with a challenge", async () => {
   }
 });
 test("missing secrets fail closed", async () => {
-  assert.equal((await call(basic("bibel:Gnade für alle"), {})).status, 500);
+  assert.equal((await call(basic("bibel:Gnade für alle"), { ASSETS })).status, 500);
 });

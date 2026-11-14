@@ -1,0 +1,15 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "cross-references",
+  "compatibility_date": "2026-11-13",
+  // the Worker checks the password, then hands the request to the static files in dist/
+  "main": "worker/index.ts",
+  "assets": {
+    "directory": "./dist",
+    "binding": "ASSETS",
+    "run_worker_first": true
+  },
+  "observability": {
+    "enabled": true
+  }
+}

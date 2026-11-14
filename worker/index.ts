@@ -1,18 +1,14 @@
 /**
- * Cloudflare Pages middleware: HTTP Basic Auth in front of every request (pages, assets, JSON data).
- * Credentials come from the Pages secrets BASIC_AUTH_USER and BASIC_AUTH_PASSWORD;
- * locally from .dev.vars (see .dev.vars.example).
+ * Cloudflare Worker: HTTP Basic Auth in front of the static site (pages, assets, JSON data).
+ * wrangler.jsonc serves dist/ through the ASSETS binding with run_worker_first, so every request
+ * passes through here. Credentials come from the Worker secrets BASIC_AUTH_USER and
+ * BASIC_AUTH_PASSWORD; locally from .dev.vars (see .dev.vars.example).
  */
 
-interface Env {
+export interface Env {
+  ASSETS: { fetch(request: Request): Promise<Response> };
   BASIC_AUTH_USER?: string;
   BASIC_AUTH_PASSWORD?: string;
-}
-
-interface Context {
-  request: Request;
-  env: Env;
-  next: () => Promise<Response>;
 }
 
 /** Compares two strings in constant time by comparing their SHA-256 digests byte by byte. */
@@ -53,15 +49,17 @@ const unauthorized = () =>
     },
   });
 
-export async function onRequest({ request, env, next }: Context): Promise<Response> {
-  const user = env.BASIC_AUTH_USER;
-  const password = env.BASIC_AUTH_PASSWORD;
-  if (!user || !password) {
-    // fail closed: a missing secret must not expose the site
-    return new Response("Zugangsdaten sind nicht konfiguriert.", { status: 500 });
-  }
-  const given = credentials(request.headers.get("Authorization"));
-  if (!given) return unauthorized();
-  const [okUser, okPassword] = await Promise.all([same(given[0], user), same(given[1], password)]);
-  return okUser && okPassword ? next() : unauthorized();
-}
+export default {
+  async fetch(request: Request, env: Env): Promise<Response> {
+    const user = env.BASIC_AUTH_USER;
+    const password = env.BASIC_AUTH_PASSWORD;
+    if (!user || !password) {
+      // fail closed: a missing secret must not expose the site
+      return new Response("Zugangsdaten sind nicht konfiguriert.", { status: 500 });
+    }
+    const given = credentials(request.headers.get("Authorization"));
+    if (!given) return unauthorized();
+    const [okUser, okPassword] = await Promise.all([same(given[0], user), same(given[1], password)]);
+    return okUser && okPassword ? env.ASSETS.fetch(request) : unauthorized();
+  },
+};
