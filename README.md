@@ -10,25 +10,26 @@ Bible references and freely worded questions. No server, no language model, no e
 npm install
 npm run dev       # development server
 npm run build     # type check + static build into dist/
-npm test          # stemmer, reference parser and password middleware
+npm test          # stemmer, reference parser and password check
+npm run worker    # build + run the Worker locally with password check
+npm run deploy    # build + deploy to Cloudflare
 npm run data      # regenerate the data (Python 3, Node ≥ 23)
 ```
 
 `dist/` can be copied to any web host; `base: "./"` also allows subdirectories.
 
-## Password protection (Cloudflare Pages)
+## Deployment and password protection (Cloudflare Workers)
 
-`functions/_middleware.ts` puts HTTP Basic Auth in front of every request, including the JSON data.
-Cloudflare Pages picks up `functions/` automatically; other hosts ignore it and serve the site
-unprotected.
+`wrangler.jsonc` deploys the site as a Worker with static assets. `worker/index.ts` runs before every
+request (`run_worker_first`) and requires HTTP Basic Auth, including for the JSON data.
 
-1. In the Pages project: **Settings → Variables and Secrets**, add `BASIC_AUTH_USER` and
-   `BASIC_AUTH_PASSWORD` as type *Secret*, then redeploy.
-2. Without both secrets the site answers 500 instead of being publicly accessible.
-3. Local test: copy `.dev.vars.example` to `.dev.vars` (git-ignored), then
-   `npm run build && npx wrangler pages dev dist`.
+1. Cloudflare build settings: build command `npm run build`, deploy command `npx wrangler deploy`.
+2. In the Worker: **Settings → Variables and Secrets**, add `BASIC_AUTH_USER` and
+   `BASIC_AUTH_PASSWORD` as type *Secret* (or `npx wrangler secret put BASIC_AUTH_PASSWORD`).
+3. Without both secrets the Worker answers 500 instead of serving the site unprotected.
+4. Local test: copy `.dev.vars.example` to `.dev.vars` (git-ignored), then `npm run worker`.
 
-Keep test files out of `functions/`: Pages turns every file there into a route.
+Other static hosts ignore `worker/` and serve `dist/` without a password.
 
 ## Data
 
