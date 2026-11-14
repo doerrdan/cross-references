@@ -24,3 +24,6 @@ __pycache__/
 *.log
 .env
 .env.*
+
+# local Cloudflare secrets
+.dev.vars
