@@ -3,6 +3,7 @@
  * wrangler.jsonc serves dist/ through the ASSETS binding with run_worker_first, so every request
  * passes through here. Credentials come from the Worker secrets BASIC_AUTH_USER and
  * BASIC_AUTH_PASSWORD; locally from .dev.vars (see .dev.vars.example).
+ * BASIC_AUTH_USER = "*" accepts any user name (including an empty one), so only the password counts.
  */
 
 export interface Env {
@@ -49,6 +50,8 @@ const unauthorized = () =>
     },
   });
 
+const WILDCARD = "*";
+
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
     const user = env.BASIC_AUTH_USER;
@@ -59,7 +62,10 @@ export default {
     }
     const given = credentials(request.headers.get("Authorization"));
     if (!given) return unauthorized();
-    const [okUser, okPassword] = await Promise.all([same(given[0], user), same(given[1], password)]);
+    const [okUser, okPassword] = await Promise.all([
+      user === WILDCARD ? true : same(given[0], user),
+      same(given[1], password),
+    ]);
     return okUser && okPassword ? env.ASSETS.fetch(request) : unauthorized();
   },
 };

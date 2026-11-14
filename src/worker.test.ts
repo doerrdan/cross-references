@@ -21,3 +21,11 @@ test("wrong or missing credentials get 401 with a challenge", async () => {
 test("missing secrets fail closed", async () => {
   assert.equal((await call(basic("bibel:Gnade für alle"), { ASSETS })).status, 500);
 });
+test("user name * accepts any user name, password still required", async () => {
+  const wild: Env = { ASSETS, BASIC_AUTH_USER: "*", BASIC_AUTH_PASSWORD: "Gnade für alle" };
+  for (const u of ["bibel", "irgendwer", ""]) {
+    assert.equal((await call(basic(`${u}:Gnade für alle`), wild)).status, 200, u);
+  }
+  assert.equal((await call(basic("bibel:falsch"), wild)).status, 401);
+  assert.equal((await call(undefined, wild)).status, 401);
+});
