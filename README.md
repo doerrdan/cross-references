@@ -10,11 +10,25 @@ Bible references and freely worded questions. No server, no language model, no e
 npm install
 npm run dev       # development server
 npm run build     # type check + static build into dist/
-npm test          # stemmer and reference parser
+npm test          # stemmer, reference parser and password middleware
 npm run data      # regenerate the data (Python 3, Node ≥ 23)
 ```
 
 `dist/` can be copied to any web host; `base: "./"` also allows subdirectories.
+
+## Password protection (Cloudflare Pages)
+
+`functions/_middleware.ts` puts HTTP Basic Auth in front of every request, including the JSON data.
+Cloudflare Pages picks up `functions/` automatically; other hosts ignore it and serve the site
+unprotected.
+
+1. In the Pages project: **Settings → Variables and Secrets**, add `BASIC_AUTH_USER` and
+   `BASIC_AUTH_PASSWORD` as type *Secret*, then redeploy.
+2. Without both secrets the site answers 500 instead of being publicly accessible.
+3. Local test: copy `.dev.vars.example` to `.dev.vars` (git-ignored), then
+   `npm run build && npx wrangler pages dev dist`.
+
+Keep test files out of `functions/`: Pages turns every file there into a route.
 
 ## Data
 
