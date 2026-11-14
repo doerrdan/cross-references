@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="Elberfelder Bibel mit den Querverweisen von OpenBible.info und einer Suche, die Fragen versteht."
+    />
+    <title>Querverweise der Elberfelder</title>
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M4 24 Q16 2 28 24' fill='none' stroke='%231D5C63' stroke-width='3'/%3E%3Crect x='2' y='24' width='28' height='4' fill='%231E2328'/%3E%3C/svg%3E"
+    />
+  </head>
+  <body>
+    <header class="bar">
+      <a class="mark" href="#/">Querverweise <span>Elberfelder</span></a>
+      <form class="search" role="search" id="search-form">
+        <label class="visually-hidden" for="q">Bibelstelle oder Frage</label>
+        <input
+          id="q"
+          name="q"
+          type="search"
+          autocomplete="off"
+          spellcheck="false"
+          placeholder="Joh 3,16 oder: Was sagt Jesus über Sorgen?"
+        />
+        <button type="submit" aria-label="Suchen">→</button>
+      </form>
+    </header>
+    <div class="layout">
+      <main id="main" tabindex="-1">
+        <p class="loading">Bibeltext wird geladen …</p>
+      </main>
+      <aside id="panel" class="panel" aria-label="Querverweise" hidden></aside>
+    </div>
+    <footer class="foot">
+      Text: Elberfelder Übersetzung (gemeinfrei).
+      Querverweise:
+      <a href="https://www.openbible.info/labs/cross-references/"
+        >OpenBible.info</a
+      >
+      (CC BY). Synonyme:
+      <a href="https://www.openthesaurus.de">OpenThesaurus</a> (LGPL).
+    </footer>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
