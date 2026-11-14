@@ -351,7 +351,16 @@ main:focus { outline: none; }
 }
 
 @media (max-width: 40rem) {
-  .bar { grid-template-columns: minmax(0, 1fr); gap: 0.6rem; }
+  /* header holds only the title; the search field sits below it and scrolls away with the page */
+  .bar { display: contents; }
+  .mark {
+    position: sticky; top: 0; z-index: 20;
+    padding: 0.7rem 1rem;
+    background: color-mix(in srgb, var(--paper) 94%, transparent);
+    backdrop-filter: blur(6px);
+    border-bottom: 1px solid var(--rule);
+  }
+  .search { max-width: none; padding: 1rem 1rem 0; }
   .search button { padding-inline: 0.75rem; }
   .home h1 { font-size: var(--t-xl); }
   .hit { grid-template-columns: minmax(0, 1fr); }
