@@ -7,7 +7,8 @@ import {
   type GreekChapter, type GreekWord, type Mode,
 } from "./greek-text.ts";
 
-type Lexicon = Record<string, { l: string; d: string }>;
+/** l lemma, d German meaning (machine-translated), e English (TBESG), en: d is still English */
+type Lexicon = Record<string, { l: string; d: string; e?: string; en?: 1 }>;
 type Morph = Record<string, string>;
 
 const base = `${import.meta.env.BASE_URL}data/greek/`;
@@ -186,10 +187,11 @@ async function showPopover(anchor: HTMLElement, w: GreekWord, pin: boolean) {
       el("p", "gpop-head", lemma, " ", el("span", "gpop-strong", strongLabel(s))),
       el("p", "gpop-morph", morph[m] ?? m),
     );
-    if (entry?.d) rows.push(el("p", "gpop-row", el("span", "gpop-key", "Bedeutung "), entry.d));
+    if (entry?.d) rows.push(el("p", "gpop-row gpop-meaning", entry.d));
   }
-  rows.push(el("p", "gpop-row", el("span", "gpop-key", "Glosse "), w.gl || "–"));
+  if (w.gl) rows.push(el("p", "gpop-row", el("span", "gpop-key", "Hier (engl.): "), w.gl));
   if (w.ed !== "b") rows.push(el("p", `gpop-row gpop-ed ed-${w.ed}`, EDITION_LABEL[w.ed]));
+  rows.push(el("p", "gpop-note", "Bedeutung maschinell aus dem Englischen übersetzt (STEP Bible)"));
   popover.replaceChildren(...rows);
   popover.setAttribute("aria-label", `Wortinformation zu ${w.g}`);
   popover.hidden = false;

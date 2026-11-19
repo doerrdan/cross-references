@@ -387,6 +387,8 @@ main:focus { outline: none; }
 .gpop-lemma { font: 600 1.05rem/1.3 var(--serif); }
 .gpop-strong { color: var(--muted); font-variant-numeric: tabular-nums; }
 .gpop-key { color: var(--muted); }
+.gpop-meaning { font-weight: 600; }
+.gpop-note { margin-top: 0.45rem !important; padding-top: 0.35rem; border-top: 1px solid var(--rule); font-size: 0.72rem; color: var(--muted); }
 .gpop-ed { margin-top: 0.3rem !important; font-weight: 600; }
 .gpop-ed.ed-n { color: var(--ed-n); }
 .gpop-ed.ed-t { color: var(--ed-t); }

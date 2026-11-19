@@ -58,5 +58,12 @@ Die Rohdateien werden nicht verändert, nur gelesen.
 6. Morphologie-Codes werden über TEGMC und `scripts/morph_de.json` ins Deutsche übersetzt; Lemma und
    Grundbedeutung kommen aus TBESG (für G3700G und G3700H, die dort fehlen, aus der TAGNT-Spalte
    „Dictionary form“).
-7. Versnummern folgen der Elberfelder 1905: Lk 17,36 (Elb) erhält TAGNT Luk.17.37; TAGNT Luk.17.36
+8. Die englischen Kurzbedeutungen aus TBESG (5.579 Strong-Nummern) sind ins Deutsche übersetzt
+   (`scripts/lexicon_de/*.tsv`, Feld `d` in `lexicon.json`). Die Übersetzung ist maschinell
+   (Claude, 2026-11-19), erstellt mit dem griechischen Lemma und den häufigsten TAGNT-Kontextglossen
+   des Wortes; sie ist nicht von Fachleuten geprüft. Eigennamen folgen der Schreibweise der
+   Elberfelder 1905. Wo TBESG offensichtlich fehlerhaft ist (G1212 δῆλος „Urim“), steht die
+   übliche Bedeutung („offenbar, deutlich“). Die englische Fassung bleibt im Feld `e` erhalten;
+   die englische Kontextglosse (`gl`) wird unverändert angezeigt.
+9. Versnummern folgen der Elberfelder 1905: Lk 17,36 (Elb) erhält TAGNT Luk.17.37; TAGNT Luk.17.36
    (nur TR) wird nach Lk 17,35 mit Hinweis gezeigt (`scripts/verse_map.json`).
