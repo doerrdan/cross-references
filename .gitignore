@@ -10,6 +10,10 @@ scripts/
 # downloaded archives
 raw/**/*.zip
 
+# STEPBible raw files: the TAGNT licence asks not to post copies elsewhere (see vendor/stepbible/SOURCE.md)
+vendor/stepbible/*
+!vendor/stepbible/SOURCE.md
+
 # Python
 __pycache__/
 *.pyc

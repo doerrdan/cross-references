@@ -29,3 +29,9 @@ test("user name * accepts any user name, password still required", async () => {
   assert.equal((await call(basic("bibel:falsch"), wild)).status, 401);
   assert.equal((await call(undefined, wild)).status, 401);
 });
+test("Greek data needs the password too", async () => {
+  const req = (auth?: string) =>
+    worker.fetch(new Request("https://x/data/greek/John/1.json", { headers: auth ? { Authorization: auth } : {} }), env);
+  assert.equal((await req()).status, 401);
+  assert.equal((await req(basic("bibel:Gnade für alle"))).status, 200);
+});

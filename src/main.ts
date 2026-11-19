@@ -4,6 +4,7 @@ import {
   chapterVerses, loadBible, loadCrossRefs, NT_START, refLabel,
   type Bible, type CrossRefs,
 } from "./data.ts";
+import { greekBlock, hidePopover } from "./greek.ts";
 import { parseRefs, type Ref } from "./refs.ts";
 import { SearchEngine, type Hit, type Result, type Thesaurus } from "./search.ts";
 
@@ -227,7 +228,14 @@ function select(i: number, push = true) {
   renderPanel();
 }
 
+/** Greek text below an NT verse (Elberfelder above, Greek below); null for OT verses. */
+function greekFor(i: number) {
+  const v = bible.verses[i];
+  return v.b >= NT_START ? greekBlock(bible.books[v.b].osis, v.c, v.v, refLabel(bible, i, -1, false)) : null;
+}
+
 function closePanel() {
+  hidePopover();
   selected = -1;
   panel.hidden = true;
   document.body.classList.remove("panel-open");
@@ -250,8 +258,10 @@ function renderPanel() {
   const quote = h("blockquote", { class: "panel-verse" },
     v.h ? h("span", { class: "superscription" }, v.h) : null, ...renderText(i));
 
+  hidePopover();
+  const greek = greekFor(i);
   if (!xrefs) {
-    panel.replaceChildren(head, quote, h("p", { class: "muted" }, "Querverweise werden geladen …"));
+    panel.replaceChildren(head, quote, greek ?? "", h("p", { class: "muted" }, "Querverweise werden geladen …"));
     return;
   }
   const outAll = xrefs.out[i];
@@ -301,7 +311,7 @@ function renderPanel() {
         : direction === "out" ? "Zu diesem Vers verzeichnet OpenBible.info keine Verweise." : "Kein anderer Vers verweist hierher.");
 
   panel.replaceChildren(
-    head, quote,
+    head, quote, greek ?? "",
     canonStrip(bible, i, items.map(({ to, votes }) => ({ to, votes })), (t) => go(verseHash(t))),
     h("div", { class: "panel-controls" }, tabs, filter),
     empty ?? list);
@@ -422,7 +432,11 @@ function renderResults(q: string, r: Result) {
       } }, refLabel(bible, i)),
       h("p", { class: "hit-text" }, ...renderText(i, marks, false)),
       reason,
-      h("a", { class: "in-context", href: verseHash(i) }, "im Kapitel lesen"));
+      h("div", { class: "hit-actions" },
+        h("a", { class: "in-context", href: verseHash(i) }, "im Kapitel lesen"),
+        bible.verses[i].b >= NT_START
+          ? h("button", { type: "button", class: "greek-toggle", "aria-expanded": "false", onclick: toggleGreek(i) }, "Griechisch")
+          : null));
   };
 
   main.replaceChildren(
@@ -441,6 +455,19 @@ function renderResults(q: string, r: Result) {
         : null,
       xrefs ? null : h("p", { class: "muted" }, "Querverweise werden noch geladen; die Gewichtung über das Verweisnetz folgt.")));
   window.scrollTo({ top: 0 });
+}
+
+/** Click handler for "Griechisch" in a search hit: shows or hides the Greek text below the hit. */
+function toggleGreek(i: number) {
+  return (e: Event) => {
+    const btn = e.currentTarget as HTMLButtonElement;
+    const li = btn.closest(".hit")!;
+    const open = li.querySelector(".greek");
+    hidePopover();
+    if (open) open.remove();
+    else li.append(greekFor(i)!);
+    btn.setAttribute("aria-expanded", String(!open));
+  };
 }
 
 // ---------- events ----------

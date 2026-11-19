@@ -38,6 +38,7 @@ Other static hosts ignore `worker/` and serve `dist/` without a password.
 | `public/data/bible.json`     | `data/Elberfelder_1905_*.pdf`, via `pdftotext -layout` into `data/elb1905_*.layout.txt` | `scripts/parse_bible.py`     |
 | `public/data/xrefs.json`     | `raw/openbible/cross_references.txt` (CC BY)                              | `scripts/build_xrefs.py`     |
 | `public/data/thesaurus.json` | `raw/openthesaurus/openthesaurus.txt` (LGPL 2.1)                          | `scripts/build_thesaurus.ts` |
+| `public/data/greek/`         | `vendor/stepbible/` TAGNT, TBESG, TEGMC (STEPBible, CC BY 4.0)            | `scripts/build_greek.py`     |
 
 `bible.json` contains 31,105 verses. Footnotes `{…}` are separated from the text and stored with their
 position; psalm superscriptions are in the field `h`.
@@ -49,6 +50,41 @@ that are combined in one numbering and split in the other are mapped to the near
 Luke 17:36 (KJV) does not exist in the Elberfelder and is dropped. The mapping has been checked against
 the chapter lengths; after conversion, 343,586 of 344,799 references remain (the rest have negative
 votes or are lost through merged verses).
+
+## Greek New Testament
+
+Selecting an NT verse shows the Greek text below the Elberfelder text, as NA28, as TR (Scrivener 1894),
+or both with the words of only one edition marked. Each word opens a popover with lemma, Strong number,
+German morphology, lexicon meaning and the English context gloss. Search hits in the NT have a
+„Griechisch“ button. The search itself does not use the Greek.
+
+```
+npm run greek     # uv run scripts/build_greek.py, then the Python tests
+```
+
+The raw files are git-ignored: the TAGNT licence asks not to post copies elsewhere.
+`vendor/stepbible/SOURCE.md` records the commit, the checksums, how to download the files again, and
+every change made to the data. `scripts/inspect_tagnt.py` prints the file structure.
+
+**Format (from the inspection).** One tab-separated line per word: reference with word number and word
+type (`Mat.2.3#05=NKO`), Greek with transliteration, English gloss, `dStrong=morphology`
+(joined words such as κἀγώ carry two pairs), `lemma=gloss`, editions
+(`NA28+NA27+Tyn+SBL+WH+Treg+TR+Byz`), then variants and further fields. Every word of every major
+edition appears once; the edition list says where it occurs. `TR«3` / `TR»1` mean that in the TR the
+word stands directly after word number (own number − 3) or (own number + 1); the build script turns this
+into a separate TR word order (927 verses). Meaning variants are separate words with their own editions.
+
+**Verse alignment.** TAGNT counts by NRSV, and the Elberfelder 1905 follows the same numbering in the NT:
+7,957 of 7,958 verses match. The exception is Luke 17: Elberfelder 17,36 is TAGNT 17.37, and TAGNT 17.36
+(TR only) is shown after 17,35 with a note (`scripts/verse_map.json`). `scripts/check_verses.py` runs
+before every build, writes `reports/verse_mismatch.md` and stops the build on a new difference.
+
+**Size.** 10.2 MB for 260 chapter files (largest: Matthew 26, 89 kB), lexicon 274 kB, morphology 88 kB.
+A chapter file is loaded only when one of its verses is opened.
+
+**Decisions.** „NA“ is NA28; the 130 words where NA27 and NA28 differ are not shown separately. The
+source keeps its Unicode normalisation (oxia rather than tonos), except that U+0345 is composed because
+Literata lacks it.
 
 ## Search
 

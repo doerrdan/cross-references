@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "data": "python3 scripts/parse_bible.py && python3 scripts/build_xrefs.py && node scripts/build_thesaurus.ts",
+    "greek": "uv run scripts/build_greek.py && uv run -m unittest discover -s scripts -p test_greek.py",
     "dev": "vite",
     "build": "tsc --noEmit && vite build",
     "preview": "vite preview",
