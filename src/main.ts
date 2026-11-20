@@ -4,7 +4,9 @@ import {
   chapterVerses, loadBible, loadCrossRefs, NT_START, refLabel,
   type Bible, type CrossRefs,
 } from "./data.ts";
-import { greekBlock, hidePopover } from "./greek.ts";
+import { summarize, withForm, type VerseHits } from "./concordance-data.ts";
+import { greekBlock, hidePopover, lexiconEntries, loadOccurrences } from "./greek.ts";
+import { strongLabel } from "./greek-text.ts";
 import { parseRefs, type Ref } from "./refs.ts";
 import { SearchEngine, type Hit, type Result, type Thesaurus } from "./search.ts";
 
@@ -59,6 +61,7 @@ function h<K extends keyof HTMLElementTagNameMap>(
 // #/John.3                chapter
 // #/John.3.16             chapter with verse selected
 // #/suche/<query>         search
+// #/wort/G2316            every occurrence of a Greek word (Strong number without sense letter)
 
 const verseHash = (i: number) => {
   const v = bible.verses[i];
@@ -73,6 +76,11 @@ function route() {
     const q = hash.slice(6);
     input.value = q;
     runSearch(q);
+    return;
+  }
+  const wm = /^wort\/(G\d{4})$/.exec(hash);
+  if (wm) {
+    showWord(wm[1]);
     return;
   }
   const m = /^([1-3]?[A-Za-z]+)\.(\d+)(?:\.(\d+))?$/.exec(hash);
@@ -335,6 +343,87 @@ function refreshCounts() {
       badge.textContent = String(n);
     }
   });
+}
+
+// ---------- Greek word concordance ----------
+
+const WORD_PAGE = 100;
+let wordView = 0; // ignores a slow load if another view was opened meanwhile
+
+async function showWord(b: string) {
+  const token = ++wordView;
+  main.dataset.chapter = "";
+  input.value = "";
+  closePanel();
+  document.title = `${strongLabel(b)} | Griechisch`;
+  main.replaceChildren(h("section", { class: "results word-view" }, h("p", { class: "muted" }, "Stellen werden geladen …")));
+  let occ, entries;
+  try {
+    [occ, entries] = await Promise.all([loadOccurrences(b), lexiconEntries(b)]);
+  } catch (err) {
+    if (token === wordView) main.replaceChildren(h("p", { class: "empty" }, `Die Stellen konnten nicht geladen werden (${String(err)}).`));
+    return;
+  }
+  if (token !== wordView) return;
+  const s = summarize(occ);
+  const lemmas = [...new Set(entries.map((e) => e.l))];
+  const meanings = [...new Set(entries.map((e) => e.d))];
+  const title = lemmas.join(", ") || strongLabel(b);
+  document.title = `${title} | Griechisch`;
+
+  let form: string | null = null;
+  let shown = WORD_PAGE;
+  const list = h("ol", { class: "hits" });
+  const status = h("p", { class: "muted word-status" });
+  const more = h("button", { type: "button", class: "more", onclick: () => { shown += WORD_PAGE; render(); } });
+  const chip = (f: string | null, label: string, n: number) =>
+    h("button", {
+      type: "button", class: "form-chip", "aria-pressed": "false", "data-form": f ?? "",
+      onclick: () => { form = f; shown = WORD_PAGE; render(); },
+    }, f ? h("span", { lang: "grc" }, label) : label, h("span", { class: "muted" }, ` ${n.toLocaleString("de-DE")}`));
+  const chips = h("div", { class: "form-chips", role: "group", "aria-label": "Nach Wortform filtern" },
+    chip(null, "alle Formen", s.total), ...s.forms.map(([f, n]) => chip(f, f, n)));
+
+  const item = (v: VerseHits) => {
+    const [osis, c, vv] = v.id.split(".");
+    const i = bible.index.get(`${bible.books.findIndex((bk) => bk.osis === osis)}.${c}.${vv}`);
+    if (i === undefined) return null;
+    const forms = h("p", { class: "word-forms", lang: "grc" });
+    v.forms.forEach((f, k) => {
+      if (k) forms.append(" · ");
+      forms.append(h("span", { class: f.ed ? `gw ed-${f.ed}` : "" }, f.g));
+      if (f.ed) forms.append(h("span", { class: "muted", lang: "de" }, f.ed === "n" ? " (nur NA28)" : " (nur TR)"));
+    });
+    return h("li", { class: "hit" },
+      h("a", { class: "hit-ref", href: verseHash(i) }, refLabel(bible, i)),
+      h("p", { class: "hit-text" }, ...renderText(i, [], false)),
+      forms);
+  };
+
+  function render() {
+    const vs = withForm(s.verses, form);
+    list.replaceChildren(...vs.slice(0, shown).map(item).filter((x): x is HTMLLIElement => x !== null));
+    const rest = vs.length - shown;
+    more.hidden = rest <= 0;
+    more.textContent = `Weitere ${Math.min(WORD_PAGE, rest).toLocaleString("de-DE")} von ${rest.toLocaleString("de-DE")} anzeigen`;
+    status.textContent = form
+      ? `${vs.length.toLocaleString("de-DE")} Verse mit der Form ${form}`
+      : `${vs.length.toLocaleString("de-DE")} Verse`;
+    chips.querySelectorAll<HTMLButtonElement>(".form-chip").forEach((el) =>
+      el.setAttribute("aria-pressed", String((el.dataset.form || null) === form)));
+  }
+
+  main.replaceChildren(
+    h("section", { class: "results word-view" },
+      h("h1", {}, h("span", { lang: "grc" }, title), " ", h("span", { class: "word-strong" }, strongLabel(b))),
+      meanings.length ? h("p", { class: "word-meaning" }, meanings.join("; ")) : null,
+      h("p", { class: "muted" },
+        `${s.total.toLocaleString("de-DE")} Vorkommen in ${s.verses.length.toLocaleString("de-DE")} Versen des NT `,
+        `(NA28: ${s.na.toLocaleString("de-DE")}, TR: ${s.tr.toLocaleString("de-DE")}). `,
+        "Bedeutung maschinell aus dem Englischen übersetzt."),
+      chips, status, list, more));
+  render();
+  window.scrollTo({ top: 0 });
 }
 
 // ---------- search ----------

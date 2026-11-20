@@ -387,6 +387,26 @@ main:focus { outline: none; }
 .gpop-strong { color: var(--muted); font-variant-numeric: tabular-nums; }
 .gpop-key { color: var(--muted); }
 .gpop-meaning { font-weight: 600; }
+.gpop-all { font-weight: 600; text-decoration: none; }
+.gpop-all:hover { text-decoration: underline; }
+
+/* ---------- word concordance (#/wort/G2316) ---------- */
+.word-view h1 [lang="grc"] { font-family: var(--serif); }
+.word-strong { font: 500 var(--t-sm)/1 var(--sans); color: var(--muted); }
+.word-meaning { margin: 0 0 0.3rem; font-weight: 600; }
+.form-chips { display: flex; flex-wrap: wrap; gap: 0.35rem; margin: 1rem 0 0.6rem; }
+.form-chip {
+  border: 1px solid var(--rule); background: var(--paper-2); border-radius: 6px;
+  padding: 0.15rem 0.55rem; font-size: var(--t-sm); cursor: pointer; color: var(--ink);
+}
+.form-chip [lang="grc"] { font: 1rem/1.4 var(--serif); }
+.form-chip[aria-pressed="true"] { border-color: var(--accent); background: var(--accent-soft); font-weight: 600; }
+.word-status { margin: 0 0 0.25rem; font-size: var(--t-sm); }
+.word-forms { grid-column: 2; margin: 0.15rem 0 0; font: 400 1rem/1.5 var(--serif); }
+.word-forms .gw { cursor: default; }
+.more { margin-top: 1rem; border: 1px solid var(--rule); background: var(--paper-2); border-radius: 6px; padding: 0.35rem 0.8rem; cursor: pointer; color: var(--accent); }
+@media (max-width: 40rem) { .word-forms { grid-column: 1; } }
+
 .gpop-note { margin-top: 0.45rem !important; padding-top: 0.35rem; border-top: 1px solid var(--rule); font-size: 0.72rem; color: var(--muted); }
 .gpop-ed { margin-top: 0.3rem !important; font-weight: 600; }
 .gpop-ed.ed-n { color: var(--ed-n); }

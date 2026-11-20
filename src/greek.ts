@@ -2,6 +2,7 @@
  * Greek text (TAGNT, STEPBible) below an NT verse: mode switch NA28 / TR / Beide and a popover per word
  * with lemma, Strong number, German morphology and gloss. Chapter files are loaded on first use and cached.
  */
+import { baseOf, bucketOf, type Occurrence } from "./concordance-data.ts";
 import {
   EDITION_LABEL, MODE_LABEL, MODES, parts, strongLabel, verseView,
   type GreekChapter, type GreekWord, type Mode,
@@ -30,6 +31,28 @@ function loadChapter(book: string, c: number) {
     chapters.set(key, p);
   }
   return p;
+}
+
+const wordFiles = new Map<string, Promise<Record<string, Occurrence[]>>>();
+
+/** Every occurrence of a Greek word (base Strong number, e.g. "G2316"), from data/greek/words/. */
+export async function loadOccurrences(b: string): Promise<Occurrence[]> {
+  const file = `words/${bucketOf(b)}.json`;
+  let p = wordFiles.get(file);
+  if (!p) {
+    p = json<Record<string, Occurrence[]>>(file);
+    p.catch(() => wordFiles.delete(file));
+    wordFiles.set(file, p);
+  }
+  return (await p)[b] ?? [];
+}
+
+/** Lexicon entries of a base number: G0863 -> G0863G, G0863H, G0863I (the senses of ἀφίημι). */
+export async function lexiconEntries(b: string) {
+  const [lex] = await loadShared();
+  return Object.entries(lex)
+    .filter(([k]) => baseOf(k) === b)
+    .map(([k, v]) => ({ strong: k, ...v }));
 }
 
 function loadShared() {
@@ -188,6 +211,13 @@ async function showPopover(anchor: HTMLElement, w: GreekWord, pin: boolean) {
       el("p", "gpop-morph", morph[m] ?? m),
     );
     if (entry?.d) rows.push(el("p", "gpop-row gpop-meaning", entry.d));
+    const b = baseOf(s);
+    if (b) {
+      const link = el("a", "gpop-all", "Alle Stellen von ", Object.assign(el("span", "", entry?.l ?? s), { lang: "grc" }), " →");
+      link.href = `#/wort/${b}`;
+      link.addEventListener("click", () => hidePopover());
+      rows.push(el("p", "gpop-row", link));
+    }
   }
   if (w.gl) rows.push(el("p", "gpop-row", el("span", "gpop-key", "Hier (engl.): "), w.gl));
   if (w.ed !== "b") rows.push(el("p", `gpop-row gpop-ed ed-${w.ed}`, EDITION_LABEL[w.ed]));

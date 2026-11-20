@@ -86,6 +86,13 @@ meanings: the 5,579 TBESG glosses were machine-translated (`scripts/lexicon_de/`
 and the word's context glosses; the popover says so. The translation has not been reviewed by a scholar. Search hits in the NT have a
 „Griechisch“ button. The search itself does not use the Greek.
 
+**Word concordance.** The popover links to „Alle Stellen von …“ (`#/wort/G2316`): every occurrence of
+the Greek word in the NT with the Elberfelder verse and the Greek form used there, NA28-only and TR-only
+occurrences marked, filterable by form, 100 verses at a time. A word is its Strong number without the
+sense letter (G2424G Jesus and G2424I Joshua are both Ἰησοῦς; ἀφίημι's senses G0863G/H/I belong together).
+`build_greek.py` writes the index to `public/data/greek/words/NN.json` (Strong numbers NN00–NN99, 65 files,
+4.2 MB, the largest 513 kB because of the article ὁ); only the file of the clicked word is loaded.
+
 ```
 npm run greek     # uv run scripts/build_greek.py, then the Python tests
 ```
