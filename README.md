@@ -100,7 +100,10 @@ type (`Mat.2.3#05=NKO`), Greek with transliteration, English gloss, `dStrong=mor
 (`NA28+NA27+Tyn+SBL+WH+Treg+TR+Byz`), then variants and further fields. Every word of every major
 edition appears once; the edition list says where it occurs. `TR«3` / `TR»1` mean that in the TR the
 word stands directly after word number (own number − 3) or (own number + 1); the build script turns this
-into a separate TR word order (927 verses). Meaning variants are separate words with their own editions.
+into a separate TR word order. Most differing readings are separate words with their own edition lists;
+about 3,100 are given only in the column „Meaning variants“ of the main word (e.g. 1 Tim 3,16: ὃς in NA28,
+θεὸς in the TR). The build turns each of these into a word of its own directly after the main word, with
+its own Strong number, morphology and gloss, and the main word's punctuation.
 
 **Verse alignment.** TAGNT counts by NRSV, which in the NT equals the Luther 2017 numbering of
 `bible.json` except for two places (`scripts/verse_map.json`): Apg 19,40 gets the words of TAGNT 19.40

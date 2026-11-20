@@ -46,8 +46,10 @@ Die Rohdateien werden nicht verändert, nur gelesen.
 
 `scripts/build_greek.py` formt die Daten um. Inhaltlich geändert wird dabei Folgendes:
 
-1. Übernommen werden nur Wörter, die in NA28 oder im TR (Scrivener 1894) stehen. 333 Wörter, die nur
-   in anderen Ausgaben vorkommen (Byz, SBL, WH, Treg, Tyn), entfallen.
+1. Bedeutungsvarianten (TAGNT-Spalte „Meaning variants“) werden zu eigenen Wörtern direkt hinter dem
+   Hauptwort, mit den Satzzeichen des Hauptworts. Danach gilt: Übernommen werden nur Wörter, die in NA28
+   oder im TR (Scrivener 1894) stehen. 1.088 Wörter und Varianten, die
+   nur in anderen Ausgaben vorkommen (Byz, SBL, WH, Treg, Tyn), entfallen.
 2. „NA“ bedeutet NA28. Die 130 Wörter, in denen NA27 und NA28 sich unterscheiden, werden nicht eigens
    gezeigt.
 3. Die Umschrift in Klammern und das Absatzzeichen „¶“ werden aus dem griechischen Wort entfernt; „¶“
