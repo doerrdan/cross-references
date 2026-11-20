@@ -54,6 +54,7 @@ test("real data: NA28 and TR differ where TAGNT marks variants", { skip: !exists
   assert.doesNotMatch(show(chapter("1John/5.json"), 7, "na"), new RegExp(nfc("οὐρανῷ")));
   assert.match(show(chapter("1John/5.json"), 7, "tr"), new RegExp(nfc("ἕν τῷ οὐρανῷ ὁ πατήρ")));
   const lk17 = chapter("Luke/17.json");
-  assert.match(show(lk17, 36, "na"), new RegExp("^" + nfc("Καὶ ἀποκριθέντες")));
+  assert.equal(verseView(lk17, 36, "na").exists, false); // Luther 2017 numbering: 17,35 is followed by 17,37
+  assert.match(show(lk17, 37, "na"), new RegExp("^" + nfc("Καὶ ἀποκριθέντες")));
   assert.equal(verseView(lk17, 35, "tr").extras[0].ref, "Luk.17.36");
 });

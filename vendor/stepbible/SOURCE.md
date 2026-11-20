@@ -9,6 +9,7 @@ Quelle: <https://github.com/STEPBible/STEPBible-Data>, Commit `5de0a47f35f0fc13d
 | `TAGNT Act-Rev - Translators Amalgamated Greek NT - STEPBible.org CC-BY.txt` | `Translators Amalgamated OT+NT/` | `122040eeeaeba50d6abbf67b39cacaff687211bda69b080e5d53927c830d9968` |
 | `TBESG - Translators Brief lexicon of Extended Strongs for Greek - STEPBible.org CC BY.txt` | `Lexicons/` | `734a5b64a1152f67604bf09d32f15c0ba537151961752fcf168087b41b4d93ea` |
 | `TEGMC - Translators Expansion of Greek Morphhology Codes - STEPBible.org CC BY.txt` | `Morphology codes/` | `9e8443fd4759f112253d7a1858c0687a8cf833f4d537e8fda97bfff74ea4c168` |
+| `TVTMS - Translators Versification Traditions with Methodology for Standardisation for Eng+Heb+Lat+Grk+Others - STEPBible.org CC BY.txt` | `Versification/` | `c42cdfec1ae82d3e0c7e2f6a89d73bbed28ede4cf3fe18d5582626881e8d5c78` |
 | `README-STEPBible.md` | `README.md` | `261d5157c0ffeadeedad3f734db945a4c3642e3e4ce5fa28002985b6c52437b1` |
 
 ## Lizenz
@@ -34,6 +35,7 @@ curl -fLo "TAGNT Mat-Jhn - Translators Amalgamated Greek NT - STEPBible.org CC-B
 curl -fLo "TAGNT Act-Rev - Translators Amalgamated Greek NT - STEPBible.org CC-BY.txt" "$B/Translators%20Amalgamated%20OT%2BNT/TAGNT%20Act-Rev%20-%20Translators%20Amalgamated%20Greek%20NT%20-%20STEPBible.org%20CC-BY.txt"
 curl -fLo "TBESG - Translators Brief lexicon of Extended Strongs for Greek - STEPBible.org CC BY.txt" "$B/Lexicons/TBESG%20-%20Translators%20Brief%20lexicon%20of%20Extended%20Strongs%20for%20Greek%20-%20STEPBible.org%20CC%20BY.txt"
 curl -fLo "TEGMC - Translators Expansion of Greek Morphhology Codes - STEPBible.org CC BY.txt" "$B/Morphology%20codes/TEGMC%20-%20Translators%20Expansion%20of%20Greek%20Morphhology%20Codes%20-%20STEPBible.org%20CC%20BY.txt"
+curl -fLo "TVTMS - Translators Versification Traditions with Methodology for Standardisation for Eng+Heb+Lat+Grk+Others - STEPBible.org CC BY.txt" "$B/Versification/TVTMS%20-%20Translators%20Versification%20Traditions%20with%20Methodology%20for%20Standardisation%20for%20Eng%2BHeb%2BLat%2BGrk%2BOthers%20-%20STEPBible.org%20CC%20BY.txt"
 curl -fLo README-STEPBible.md "$B/README.md"
 shasum -a 256 *.txt *.md   # mit der Tabelle oben vergleichen
 ```
@@ -67,3 +69,11 @@ Die Rohdateien werden nicht verändert, nur gelesen.
    die englische Kontextglosse (`gl`) wird unverändert angezeigt.
 9. Versnummern folgen der Elberfelder 1905: Lk 17,36 (Elb) erhält TAGNT Luk.17.37; TAGNT Luk.17.36
    (nur TR) wird nach Lk 17,35 mit Hinweis gezeigt (`scripts/verse_map.json`).
+
+## Verwendung von TVTMS (Verszählung)
+
+TVTMS (heruntergeladen am 2026-11-20, gleicher Commit) dient nur als Zuordnungstabelle: `scripts/renumber.py`
+nummeriert den Elberfelder-Text danach auf die Luther-2017-Zählung um, und `scripts/build_xrefs.py` rechnet
+die OpenBible-Querverweise damit von KJV- auf Luther-Zählung um. Aus TVTMS wird nichts veröffentlicht außer
+dem Ergebnis dieser Umrechnung. Wo TVTMS für diesen Text nicht entscheidet, gelten die Festlegungen in
+`scripts/verse_splits.json`.

@@ -35,21 +35,47 @@ Other static hosts ignore `worker/` and serve `dist/` without a password.
 
 | File                         | Source                                                                    | Script                       |
 | ---------------------------- | ------------------------------------------------------------------------- | ---------------------------- |
-| `public/data/bible.json`     | `data/Elberfelder_1905_*.pdf`, via `pdftotext -layout` into `data/elb1905_*.layout.txt` | `scripts/parse_bible.py`     |
+| `public/data/bible.json`     | `data/Elberfelder_1905_*.pdf`, via `pdftotext -layout` into `data/elb1905_*.layout.txt`; numbering from STEPBible TVTMS (CC BY 4.0) | `scripts/parse_bible.py`, `scripts/renumber.py` |
 | `public/data/xrefs.json`     | `raw/openbible/cross_references.txt` (CC BY)                              | `scripts/build_xrefs.py`     |
 | `public/data/thesaurus.json` | `raw/openthesaurus/openthesaurus.txt` (LGPL 2.1)                          | `scripts/build_thesaurus.ts` |
 | `public/data/greek/`         | `vendor/stepbible/` TAGNT, TBESG, TEGMC (STEPBible, CC BY 4.0)            | `scripts/build_greek.py`     |
 
-`bible.json` contains 31,105 verses. Footnotes `{…}` are separated from the text and stored with their
-position; psalm superscriptions are in the field `h`.
+`bible.json` contains 31,169 verses. Footnotes `{…}` are separated from the text and stored with their
+position.
 
-**Versification.** OpenBible uses the King James Version numbering; the Elberfelder follows the Hebrew
-numbering in about 20 chapters (e.g. Mi 5,1 = KJV Mic 5:2; 3. Mose 5,20–26 = KJV Lev 6:1–7; Joel and
-Malachi, by contrast, follow the KJV). `kjv_to_elb()` in `build_xrefs.py` converts between them. Verses
-that are combined in one numbering and split in the other are mapped to the nearest corresponding verse.
-Luke 17:36 (KJV) does not exist in the Elberfelder and is dropped. The mapping has been checked against
-the chapter lengths; after conversion, 343,586 of 344,799 references remain (the rest have negative
-votes or are lost through merged verses).
+**Modern Versification.** The text is the Elberfelder 1905, but chapters and verses are numbered
+as in other modern German Bibles: Hebrew numbering in the OT with psalm titles as
+verses, Nestle-Aland numbering in the NT. A printed Elberfelder 1905 therefore differs in places, e.g.
+Joel 3,1 here is Joel 2,28 there, Maleachi has 3 chapters instead of 4, and Ps 51,3 is Ps 51,1.
+
+The Elberfelder 1905 mixes traditions (Hebrew in about 20 chapters such as Lev 5 and Mic 4, KJV in
+others such as Gen 31/32, Joel and Malachi, psalm titles not counted). `scripts/renumber.py` converts it
+once, in place:
+
+1. `scripts/versification.py` reads STEPBible TVTMS (`vendor/stepbible/`), finds for every section which
+   tradition the Elberfelder follows (using the section's tests) and maps it onto the Hebrew/Greek column:
+   1,872 verses renumbered, 52 joined to a neighbouring verse (short psalm titles go into verse 1;
+   Neh 7,68–69; Jes 63,19/64,1; Apg 19,40–41).
+2. `scripts/verse_splits.json` holds what TVTMS cannot decide for this text: six verses or titles cut
+   into two at the Hebrew verse boundary (1 Chr 12,4–5, Hiob 41,1–2, Ps 51/52/54/60 titles), Ps 13 and Ps 98, the „Lobet den HERRN“ that the Elberfelder sets apart as a title in eight
+   psalms, Num 30 and Dtn 29 (where the Elberfelder divides a KJV verse itself), and Lk 17,36.
+   Deliberate deviations from Luther 2017: Num 26,1 is not split (Num 25 has 18 verses, not 19).
+   Text corrections ("edits"): Ps 53,1 without the editorial remark „Vergleiche Ps. 14, auch bezüglich
+   der Anmerkungen“, Ps 60,1 „Miktam“ instead of „Gedicht“.
+3. The TVTMS tests are run again on the result; the script writes nothing unless every section then
+   matches the Luther column (`reports/versification_after.md`). `scripts/renumber_log.json` lists every
+   old Elberfelder reference with its new number.
+
+The text is only cut, joined and renumbered, never reworded. Verses that modern editions mark as
+missing but the Elberfelder contains (e.g. Mt 18,11, Apg 8,37) keep their number. Luke 17,36 does not
+exist (the Elberfelder never had it); 17,35 is followed by 17,37. Luther 2017 itself could not be
+checked here: the mapping is TVTMS's Hebrew/Greek column, which the Loccum guidelines followed by Luther
+2017 are based on.
+
+OpenBible uses KJV numbering; `build_xrefs.py` converts it with the same TVTMS data (`kjv_map()`).
+`xrefs.json` addresses verses by their position in `bible.json`, so it must be rebuilt after every change
+to the verse list; it records the list it was built for, and `npm test` fails if that no longer matches.
+343,586 of 344,799 references remain (the rest have negative votes or are lost through merged verses).
 
 ## Greek New Testament
 
@@ -76,9 +102,9 @@ edition appears once; the edition list says where it occurs. `TR«3` / `TR»1` m
 word stands directly after word number (own number − 3) or (own number + 1); the build script turns this
 into a separate TR word order (927 verses). Meaning variants are separate words with their own editions.
 
-**Verse alignment.** TAGNT counts by NRSV, and the Elberfelder 1905 follows the same numbering in the NT:
-7,957 of 7,958 verses match. The exception is Luke 17: Elberfelder 17,36 is TAGNT 17.37, and TAGNT 17.36
-(TR only) is shown after 17,35 with a note (`scripts/verse_map.json`). `scripts/check_verses.py` runs
+**Verse alignment.** TAGNT counts by NRSV, which in the NT equals the Luther 2017 numbering of
+`bible.json` except for two places (`scripts/verse_map.json`): Apg 19,40 gets the words of TAGNT 19.40
+and 19.41, and TAGNT Luk.17.36 (TR only) is shown after Lk 17,35 with a note. `scripts/check_verses.py` runs
 before every build, writes `reports/verse_mismatch.md` and stops the build on a new difference.
 
 **Size.** 10.2 MB for 260 chapter files (largest: Matthew 26, 89 kB), lexicon 274 kB, morphology 88 kB.

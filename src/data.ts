@@ -12,8 +12,8 @@ export interface Verse {
   v: number;
   t: string; // text without notes
   n?: [number, string][]; // [offset in t, note]
-  h?: string; // psalm superscription
 }
+// Psalm titles are verses (Luther 2017 numbering, scripts/renumber.py), so there is no separate title field.
 
 /** [target verse index, end verse index or -1, votes] */
 export type XRef = [number, number, number];
@@ -51,7 +51,11 @@ export async function loadBible(): Promise<Bible> {
 }
 
 export async function loadCrossRefs(verseCount: number): Promise<CrossRefs> {
-  const raw = (await (await fetch(url("xrefs.json"))).json()) as { source: string; refs: XRef[][] };
+  const raw = (await (await fetch(url("xrefs.json"))).json()) as { source: string; verses?: number; refs: XRef[][] };
+  if (raw.refs.length !== verseCount) {
+    // the refs address verses by position; a different verse list would show wrong references
+    throw new Error(`xrefs.json passt nicht zu bible.json (${raw.refs.length} statt ${verseCount} Verse); build_xrefs.py neu ausführen`);
+  }
   const incoming: [number, number][][] = Array.from({ length: verseCount }, () => []);
   raw.refs.forEach((list, from) => {
     for (const [to, , votes] of list) incoming[to].push([from, votes]);

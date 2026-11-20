@@ -166,7 +166,6 @@ function verseLine(i: number) {
   const v = bible.verses[i];
   const count = xrefs?.out[i].filter((r) => r[2] >= minVotes).length;
   return h("p", { class: "verse", id: `v${i}`, "data-i": i },
-    v.h ? h("span", { class: "superscription" }, v.h) : null,
     h("a", { class: "vno", href: verseHash(i), "aria-label": `Vers ${v.v}, Querverweise zeigen` }, String(v.v)),
     h("span", { class: "vtext" }, ...renderText(i)),
     count ? h("span", { class: "xcount", "aria-hidden": "true" }, String(count)) : null);
@@ -255,8 +254,7 @@ function renderPanel() {
       closePanel();
       history.replaceState(null, "", chapterHash(v.b, v.c));
     } }, "Schließen"));
-  const quote = h("blockquote", { class: "panel-verse" },
-    v.h ? h("span", { class: "superscription" }, v.h) : null, ...renderText(i));
+  const quote = h("blockquote", { class: "panel-verse" }, ...renderText(i));
 
   hidePopover();
   const greek = greekFor(i);
@@ -520,6 +518,7 @@ async function start() {
     fetch(`${import.meta.env.BASE_URL}data/thesaurus.json`).then((r) => r.json() as Promise<Thesaurus>),
   ]);
   if (t.status === "fulfilled") engine.setThesaurus(t.value);
+  if (x.status === "rejected") console.error("Querverweise nicht geladen:", x.reason);
   if (x.status === "fulfilled") {
     xrefs = x.value;
     engine.setCrossRefs(xrefs);
