@@ -81,9 +81,7 @@ to the verse list; it records the list it was built for, and `npm test` fails if
 
 Selecting an NT verse shows the Greek text below the Elberfelder text, as NA28, as TR (Scrivener 1894),
 or both with the words of only one edition marked. Each word opens a popover with lemma, Strong number,
-German morphology, German lexicon meaning and the English context gloss. STEPBible has no German
-meanings: the 5,579 TBESG glosses were machine-translated (`scripts/lexicon_de/`), using the Greek lemma
-and the word's context glosses; the popover says so. The translation has not been reviewed by a scholar. Search hits in the NT have a
+German morphology and how the Elberfelder renders the word (below). Search hits in the NT have a
 „Griechisch“ button. The search itself does not use the Greek.
 
 **Elberfelder renderings (estimated).** The Elberfelder has no Strong numbers, so the popover's „Hier: Gott“

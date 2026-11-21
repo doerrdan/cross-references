@@ -221,7 +221,6 @@ async function showPopover(anchor: HTMLElement, w: GreekWord, pin: boolean) {
       el("p", "gpop-head", lemma, " ", el("span", "gpop-strong", strongLabel(s))),
       el("p", "gpop-morph", morph[m] ?? m),
     );
-    if (entry?.d) rows.push(el("p", "gpop-row gpop-meaning", entry.d));
     const b = baseOf(s);
     if (b) {
       const link = el("a", "gpop-all", "Alle Stellen von ", Object.assign(el("span", "", entry?.l ?? s), { lang: "grc" }), " →");
@@ -231,7 +230,6 @@ async function showPopover(anchor: HTMLElement, w: GreekWord, pin: boolean) {
     }
   }
   if (w.ed !== "b") rows.push(el("p", `gpop-row gpop-ed ed-${w.ed}`, EDITION_LABEL[w.ed]));
-  rows.push(el("p", "gpop-note", "Bedeutung maschinell aus dem Englischen übersetzt (STEP Bible)"));
   popover.replaceChildren(...rows);
   popover.setAttribute("aria-label", `Wortinformation zu ${w.g}`);
   popover.hidden = false;

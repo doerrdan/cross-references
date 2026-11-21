@@ -367,7 +367,6 @@ async function showWord(b: string) {
   if (token !== wordView) return;
   const s = summarize(occ);
   const lemmas = [...new Set(entries.map((e) => e.l))];
-  const meanings = [...new Set(entries.map((e) => e.d))];
   const title = lemmas.join(", ") || strongLabel(b);
   document.title = `${title} | Griechisch`;
 
@@ -416,11 +415,9 @@ async function showWord(b: string) {
   main.replaceChildren(
     h("section", { class: "results word-view" },
       h("h1", {}, h("span", { lang: "grc" }, title), " ", h("span", { class: "word-strong" }, strongLabel(b))),
-      meanings.length ? h("p", { class: "word-meaning" }, meanings.join("; ")) : null,
       h("p", { class: "muted" },
         `${s.total.toLocaleString("de-DE")} Vorkommen in ${s.verses.length.toLocaleString("de-DE")} Versen des NT `,
-        `(NA28: ${s.na.toLocaleString("de-DE")}, TR: ${s.tr.toLocaleString("de-DE")}). `,
-        "Bedeutung maschinell aus dem Englischen übersetzt."),
+        `(NA28: ${s.na.toLocaleString("de-DE")}, TR: ${s.tr.toLocaleString("de-DE")}).`),
       chips, status, list, more));
   render();
   window.scrollTo({ top: 0 });
