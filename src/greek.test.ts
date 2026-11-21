@@ -61,3 +61,15 @@ test("real data: NA28 and TR differ where TAGNT marks variants", { skip: !exists
   assert.match(show(lk17, 37, "na"), new RegExp("^" + nfc("Καὶ ἀποκριθέντες")));
   assert.equal(verseView(lk17, 35, "tr").extras[0].ref, "Luk.17.36");
 });
+
+test("real data: Elberfelder renderings (estimated) for John 3,16", { skip: !existsSync(new URL("John/3.json", dir)) }, () => {
+  const ch = chapter("John/3.json");
+  const de = Object.fromEntries(ch.verses["16"].filter((w) => w.de).map((w) => [nfc(w.g).replace(/[.,]$/, ""), w.de]));
+  assert.equal(de[nfc("θεὸς")], "Gott");
+  assert.equal(de[nfc("κόσμον")], "Welt");
+  assert.equal(de[nfc("υἱὸν")], "Sohn");
+  const tr = JSON.parse(readFileSync(new URL("translations.json", dir), "utf8")) as Record<string, [string, number][]>;
+  assert.equal(tr.G2316[0][0], "Gott");
+  assert.equal(tr.G0026[0][0], "Liebe");
+  assert.ok(!tr.G4982.some(([w]) => w === "werden"), "no auxiliary as rendering of a verb");
+});

@@ -407,6 +407,9 @@ main:focus { outline: none; }
 .more { margin-top: 1rem; border: 1px solid var(--rule); background: var(--paper-2); border-radius: 6px; padding: 0.35rem 0.8rem; cursor: pointer; color: var(--accent); }
 @media (max-width: 40rem) { .word-forms { grid-column: 1; } }
 
+.gpop-here b { font-weight: 600; }
+.gpop-counts { line-height: 1.45; }
+.gpop-est { margin: 0 0 0.2rem !important; font-size: 0.72rem; color: var(--muted); }
 .gpop-note { margin-top: 0.45rem !important; padding-top: 0.35rem; border-top: 1px solid var(--rule); font-size: 0.72rem; color: var(--muted); }
 .gpop-ed { margin-top: 0.3rem !important; font-weight: 600; }
 .gpop-ed.ed-n { color: var(--ed-n); }

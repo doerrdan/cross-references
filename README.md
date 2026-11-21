@@ -86,6 +86,13 @@ meanings: the 5,579 TBESG glosses were machine-translated (`scripts/lexicon_de/`
 and the word's context glosses; the popover says so. The translation has not been reviewed by a scholar. Search hits in the NT have a
 „Griechisch“ button. The search itself does not use the Greek.
 
+**Elberfelder renderings (estimated).** The Elberfelder has no Strong numbers, so the popover's „Hier: Gott“
+and „In der Elberfelder: Gott 1.340×“ are estimated: `scripts/align_de.py` aligns Greek words with
+Elberfelder words statistically over all NT verses (IBM model 1 with a position preference, on Snowball
+word stems); for nouns, verbs and adjectives German function words are excluded. Content words come out
+well (Joh 3,16: θεός → Gott, κόσμος → Welt, μονογενής → eingeborenen); for the article the alignment is
+arbitrary, so its counts are not shown. The popover marks the counts as „automatisch ermittelt“.
+
 **Word concordance.** The popover links to „Alle Stellen von …“ (`#/wort/G2316`): every occurrence of
 the Greek word in the NT with the Elberfelder verse and the Greek form used there, NA28-only and TR-only
 occurrences marked, filterable by form, 100 verses at a time. A word is its Strong number without the

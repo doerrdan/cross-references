@@ -12,6 +12,7 @@ export interface GreekWord {
   s: string; // Strong number(s), joined words "G1473+G2532"
   m: string; // morphology code(s), "P-1NS+CONJ"
   gl: string; // English context gloss
+  de?: string; // Elberfelder word that renders it here (estimated by scripts/align_de.py)
   ed: Edition;
 }
 

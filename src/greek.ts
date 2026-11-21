@@ -11,10 +11,12 @@ import {
 /** l lemma, d German meaning (machine-translated), e English (TBESG), en: d is still English */
 type Lexicon = Record<string, { l: string; d: string; e?: string; en?: 1 }>;
 type Morph = Record<string, string>;
+/** base Strong number -> [[Elberfelder word, count], ...], estimated (scripts/align_de.py) */
+type Translations = Record<string, [string, number][]>;
 
 const base = `${import.meta.env.BASE_URL}data/greek/`;
 const chapters = new Map<string, Promise<GreekChapter>>();
-let shared: Promise<[Lexicon, Morph]> | null = null;
+let shared: Promise<[Lexicon, Morph, Translations]> | null = null;
 
 async function json<T>(file: string): Promise<T> {
   const r = await fetch(base + file);
@@ -57,7 +59,7 @@ export async function lexiconEntries(b: string) {
 
 function loadShared() {
   if (!shared) {
-    shared = Promise.all([json<Lexicon>("lexicon.json"), json<Morph>("morph-codes.json")]);
+    shared = Promise.all([json<Lexicon>("lexicon.json"), json<Morph>("morph-codes.json"), json<Translations>("translations.json")]);
     shared.catch(() => (shared = null));
   }
   return shared;
@@ -188,7 +190,7 @@ let popoverFor: HTMLElement | null = null;
 let pinned = false;
 
 async function showPopover(anchor: HTMLElement, w: GreekWord, pin: boolean) {
-  const [lex, morph] = await loadShared();
+  const [lex, morph, translations] = await loadShared();
   if (!popover) {
     popover = el("div", "gpop");
     popover.setAttribute("role", "dialog");
@@ -202,6 +204,15 @@ async function showPopover(anchor: HTMLElement, w: GreekWord, pin: boolean) {
   const word = el("p", "gpop-word", w.g);
   word.lang = "grc";
   const rows: Node[] = [word];
+  // how the Elberfelder renders the word: here, and how often with which word (estimated)
+  if (w.de) rows.push(el("p", "gpop-row gpop-here", el("span", "gpop-key", "Hier: "), el("b", "", w.de)));
+  const base0 = baseOf(w.s.split("+")[0]);
+  const counts = base0 && !w.m.startsWith("T-") ? translations[base0] : undefined; // article: arbitrary, left out
+  if (counts?.length) {
+    rows.push(el("p", "gpop-row gpop-counts", el("span", "gpop-key", "In der Elberfelder: "),
+      counts.map(([d, n]) => `${d} ${n.toLocaleString("de-DE")}×`).join(" · ")),
+    el("p", "gpop-est", "automatisch ermittelt"));
+  }
   for (const [s, m] of parts(w)) {
     const entry = lex[s];
     const lemma = el("span", "gpop-lemma", entry?.l ?? "–");
@@ -219,7 +230,6 @@ async function showPopover(anchor: HTMLElement, w: GreekWord, pin: boolean) {
       rows.push(el("p", "gpop-row", link));
     }
   }
-  if (w.gl) rows.push(el("p", "gpop-row", el("span", "gpop-key", "Hier (engl.): "), w.gl));
   if (w.ed !== "b") rows.push(el("p", `gpop-row gpop-ed ed-${w.ed}`, EDITION_LABEL[w.ed]));
   rows.push(el("p", "gpop-note", "Bedeutung maschinell aus dem Englischen übersetzt (STEP Bible)"));
   popover.replaceChildren(...rows);
